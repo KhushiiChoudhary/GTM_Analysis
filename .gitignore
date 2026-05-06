@@ -1,6 +1,4 @@
 .DS_Store
-data/
-outputs/
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
