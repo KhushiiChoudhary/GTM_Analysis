@@ -1,38 +1,21 @@
 # GTM Analysis — E-Commerce Behavior Case Study
 
-A hands-on, step-by-step project to learn **Go-To-Market (GTM) Analysis** using real e-commerce event data.
-By the end of this project, you will be able to build a full funnel analysis, identify drop-off points, segment users, and present data-backed GTM recommendations.
+End-to-end Go-To-Market analysis on real e-commerce event data.
+Covers funnel building, drop-off analysis, user segmentation, and data-backed recommendations.
 
 ---
 
 ## What is GTM Analysis?
 
-**Go-To-Market (GTM) Analysis** is the process of understanding *how users move through your product or store*, where they drop off, and what drives them to convert (buy, subscribe, sign up).
+GTM (Go-To-Market) analysis is the process of understanding how users move through your product — where they drop off and what drives them to convert.
 
-It answers:
-- Are people discovering your product? → **Awareness**
-- Are people engaging with it? → **Consideration**
-- Are people buying it? → **Conversion**
-- Are people coming back? → **Retention**
-
----
-
-## Project Structure
+The core funnel for e-commerce:
 
 ```
-GTM_Analysis/
-├── data/                     ← Put your CSV files here
-│   └── 2019-Oct.csv
-├── notebooks/                ← All analysis notebooks live here
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_funnel_analysis.ipynb
-│   ├── 03_dropoff_analysis.ipynb
-│   ├── 04_segmentation.ipynb
-│   └── 05_recommendations.ipynb
-├── outputs/                  ← Saved charts and exports
-├── README.md                 ← This file
-└── requirements.txt          ← Python dependencies
+View  →  Add to Cart  →  Purchase
 ```
+
+Each arrow is a conversion rate. GTM analysis finds where those rates are low and why.
 
 ---
 
@@ -40,283 +23,196 @@ GTM_Analysis/
 
 **Source:** [E-Commerce Behavior Data — Kaggle](https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store)
 
-**Download steps:**
-1. Go to the Kaggle link above
-2. Click **Download** (requires free Kaggle account)
-3. Unzip the file
-4. Place `2019-Oct.csv` inside the `data/` folder
+- Download `2019-Oct.csv` and place it in `data/`
+- ~42M rows, ~9GB — do not commit to git
 
-**Columns in the dataset:**
-
-| Column         | What it means                                        |
-|----------------|------------------------------------------------------|
-| `event_time`   | Timestamp of the event                               |
-| `event_type`   | What happened: `view`, `cart`, or `purchase`         |
-| `product_id`   | Unique ID of the product                             |
-| `category_id`  | Numeric category ID                                  |
-| `category_code`| Human-readable category (e.g. `electronics.phone`)  |
-| `brand`        | Product brand                                        |
-| `price`        | Price in USD                                         |
-| `user_id`      | Unique ID of the user                                |
-| `user_session` | Session ID (groups events within one visit)          |
+| Column          | Meaning                                         |
+|-----------------|-------------------------------------------------|
+| `event_time`    | Timestamp                                       |
+| `event_type`    | `view`, `cart`, or `purchase`                   |
+| `product_id`    | Product identifier                              |
+| `category_code` | Human-readable category (e.g. `electronics`)   |
+| `brand`         | Brand name                                      |
+| `price`         | Price in USD                                    |
+| `user_id`       | Unique user identifier                          |
+| `user_session`  | Session ID                                      |
 
 ---
 
-## The GTM Funnel We Will Build
+## Project Structure
 
 ```
-[AWARENESS]       All users who viewed a product
-        ↓
-[CONSIDERATION]   Users who added a product to cart
-        ↓
-[CONVERSION]      Users who completed a purchase
-```
-
-Each stage has a **conversion rate**. GTM analysis is about finding where this rate is low and *why*.
-
----
-
-## Step-by-Step Learning Roadmap
-
-### Phase 1 — Setup & Data Exploration (Notebook 01)
-
-**Goal:** Understand what the data looks like before doing any analysis.
-
-**Steps:**
-1. Install dependencies
-2. Load the dataset (sample 500k rows)
-3. Inspect shape, dtypes, nulls
-4. Understand event distribution
-5. Check date range
-
-**Key questions to answer:**
-- How many total events are there?
-- What % are views vs cart vs purchase?
-- Are there null values? In which columns?
-- What time period does the data cover?
-
-**Code you will write:**
-```python
-import pandas as pd
-
-df = pd.read_csv("../data/2019-Oct.csv", nrows=500000)
-
-# Shape
-print(df.shape)
-
-# Column types
-df.info()
-
-# First look
-df.head()
-
-# Event distribution
-df['event_type'].value_counts()
-
-# Null check
-df.isnull().sum()
+GTM_Analysis/
+├── data/                     ← CSV files (gitignored — download from Kaggle)
+├── notebooks/
+│   ├── 01_data_exploration.ipynb
+│   ├── 02_funnel_analysis.ipynb
+│   ├── 03_dropoff_analysis.ipynb
+│   ├── 04_segmentation.ipynb
+│   └── 05_recommendations.ipynb
+├── outputs/                  ← Generated charts (gitignored)
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-### Phase 2 — Funnel Analysis (Notebook 02)
-
-**Goal:** Count unique users at each stage of the funnel and calculate conversion rates.
-
-**Concept — Why unique users, not events?**
-One user can view 50 products. That's 50 events but still 1 user in the funnel.
-GTM cares about *how many people* progressed, not how many times they clicked.
-
-**Steps:**
-1. Count unique `user_id` at each funnel stage
-2. Calculate stage-to-stage conversion rates
-3. Visualize the funnel
-
-**Code you will write:**
-```python
-views     = df[df['event_type'] == 'view']['user_id'].nunique()
-carts     = df[df['event_type'] == 'cart']['user_id'].nunique()
-purchases = df[df['event_type'] == 'purchase']['user_id'].nunique()
-
-print(f"Views:     {views:,}")
-print(f"Carts:     {carts:,}")
-print(f"Purchases: {purchases:,}")
-
-view_to_cart     = carts / views
-cart_to_purchase = purchases / carts
-
-print(f"\nView → Cart conversion:     {view_to_cart:.1%}")
-print(f"Cart → Purchase conversion: {cart_to_purchase:.1%}")
-```
-
-**Benchmark (industry averages):**
-| Stage              | Typical Rate |
-|--------------------|--------------|
-| View → Cart        | 5% – 15%     |
-| Cart → Purchase    | 20% – 40%    |
-
-If your numbers are below these → that is your GTM problem to investigate.
-
----
-
-### Phase 3 — Drop-off Analysis (Notebook 03)
-
-**Goal:** Understand *who* is dropping off and *where*.
-
-**Concept — The leaky bucket:**
-Imagine your funnel is a bucket with holes. Users leak out at each stage.
-Drop-off analysis finds the biggest holes.
-
-**Steps:**
-1. Find users who viewed but never carted
-2. Find users who carted but never purchased
-3. Analyze price distribution of abandoned carts
-4. Analyze which categories have the highest drop-off
-
-**Code you will write:**
-```python
-view_users     = set(df[df['event_type'] == 'view']['user_id'])
-cart_users     = set(df[df['event_type'] == 'cart']['user_id'])
-purchase_users = set(df[df['event_type'] == 'purchase']['user_id'])
-
-# Users who viewed but never added to cart
-view_only = view_users - cart_users
-print(f"View-only users (no cart): {len(view_only):,}")
-
-# Users who carted but never purchased
-cart_abandoned = cart_users - purchase_users
-print(f"Cart abandoned users: {len(cart_abandoned):,}")
-
-# Price analysis of abandoned carts
-abandoned_cart_df = df[
-    (df['event_type'] == 'cart') &
-    (df['user_id'].isin(cart_abandoned))
-]
-print(abandoned_cart_df['price'].describe())
-```
-
-**GTM interpretation:**
-- High view-only → product discovery is working, but product pages aren't compelling
-- High cart abandonment + high price → pricing/payment friction
-- High cart abandonment in specific category → category-specific issue
-
----
-
-### Phase 4 — Segmentation (Notebook 04)
-
-**Goal:** Segment users by behavior to find your best and worst customer groups.
-
-**Concept — Segmentation in GTM:**
-Not all users are equal. GTM teams segment users to:
-- Focus marketing spend on high-value segments
-- Fix the experience for low-converting segments
-
-**Segments we will build:**
-1. **By category** — which product categories have the best conversion?
-2. **By price tier** — do high-price products convert differently?
-3. **By brand** — which brands drive the most purchases?
-4. **By hour of day** — when are users most likely to buy?
-
-**Code you will write:**
-```python
-# Conversion by category
-category_funnel = df.groupby(['category_code', 'event_type'])['user_id'].nunique().unstack(fill_value=0)
-category_funnel['conversion_rate'] = category_funnel['purchase'] / category_funnel['view']
-category_funnel.sort_values('conversion_rate', ascending=False).head(10)
-
-# Price tier segmentation
-df['price_tier'] = pd.cut(df['price'], bins=[0, 50, 200, 500, 99999],
-                          labels=['Budget', 'Mid', 'Premium', 'Luxury'])
-price_funnel = df.groupby(['price_tier', 'event_type'])['user_id'].nunique().unstack(fill_value=0)
-price_funnel['conversion_rate'] = price_funnel['purchase'] / price_funnel['view']
-```
-
----
-
-### Phase 5 — GTM Recommendations (Notebook 05)
-
-**Goal:** Translate your analysis into business recommendations.
-
-**Concept — The analyst's job:**
-Numbers are worthless without decisions attached to them. This is where GTM analysis becomes strategy.
-
-**Framework — What to write for each finding:**
-
-```
-FINDING:    [What the data shows]
-SO WHAT:    [Why this matters to the business]
-ACTION:     [What should be done]
-METRIC:     [How to measure if the fix worked]
-```
-
-**Example:**
-```
-FINDING:    Cart → Purchase conversion is 12% vs industry avg of 30%
-SO WHAT:    We are losing 18 out of every 100 cart users — that's direct revenue loss
-ACTION:     A/B test: add trust badges + show free shipping threshold at checkout
-METRIC:     Track cart_to_purchase rate weekly; target 20% in 60 days
-```
-
----
-
-## Setup Instructions
-
-### 1. Install Python dependencies
-
-```bash
-pip install pandas matplotlib seaborn jupyter plotly
-```
-
-Or install from the requirements file:
+## Setup
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. Launch Jupyter
-
-```bash
 jupyter notebook
 ```
 
-Then open `notebooks/01_data_exploration.ipynb`
+Open `notebooks/01_data_exploration.ipynb` and follow the phases in order.
 
 ---
 
-## Key Concepts Glossary
+## The 5 Phases
 
-| Term | Definition |
-|------|-----------|
-| **Funnel** | A sequence of steps users take toward a goal (view → cart → purchase) |
-| **Conversion Rate** | % of users who move from one stage to the next |
-| **Drop-off** | Users who leave the funnel at a specific stage |
-| **Segmentation** | Splitting users into groups to find patterns |
-| **Session** | A single visit by a user (a user can have multiple sessions) |
-| **CAC** | Customer Acquisition Cost — what it costs to get one paying customer |
-| **LTV** | Lifetime Value — how much revenue one customer generates over time |
-| **AOV** | Average Order Value — mean purchase price |
-| **Churn** | Users who stop engaging or buying |
-| **Cohort** | A group of users who started in the same time period |
+### Phase 1 — Data Exploration
+**Goal:** Understand the data before touching the analysis.
+
+- Load a user-level sample (not `nrows` — that biases toward one time window)
+- Check shape, dtypes, nulls
+- Understand event distribution and price range
+
+**Critical:** `category_code` has many nulls. This does not affect funnel counts (which use `user_id` + `event_type`) but does affect category-level segmentation.
+
+```python
+df_full = pd.read_csv("../data/2019-Oct.csv")
+sampled_users = pd.Series(df_full["user_id"].unique()).sample(n=50_000, random_state=42)
+df = df_full[df_full["user_id"].isin(sampled_users)].copy()
+```
+
+---
+
+### Phase 2 — Funnel Analysis
+**Goal:** Count unique users at each stage. Calculate stage-to-stage conversion rates.
+
+**Rules:**
+- Count unique users, not events — one user can view 50 products but is still 1 person in the funnel
+- Use a sequential funnel — a user only counts at stage N if they completed stage N-1
+- Any conversion rate above 100% means broken sampling or cross-period attribution
+
+```python
+view_users     = set(df[df["event_type"] == "view"]["user_id"])
+cart_users     = set(df[df["event_type"] == "cart"]["user_id"]) & view_users
+purchase_users = set(df[df["event_type"] == "purchase"]["user_id"]) & cart_users
+```
+
+**Industry benchmarks:**
+
+| Stage            | Typical Rate |
+|------------------|--------------|
+| View → Cart      | 5% – 15%     |
+| Cart → Purchase  | 20% – 40%    |
+
+**Funnel leverage rule:** A 1% improvement at the top of the funnel beats a 5% improvement at the bottom — because the top has 10x more users. Fix the stage with the most volume first.
+
+---
+
+### Phase 3 — Drop-off Analysis
+**Goal:** Find who is dropping off, at what stage, and form a testable hypothesis for why.
+
+- Compare prices of abandoned carts vs completed purchases
+- Break conversion down by category
+- Check conversion rate by hour of day
+
+**Framework — always use this structure:**
+
+```
+FINDING  → What the data shows (be specific with numbers)
+SO WHAT  → Why it matters to the business
+ACTION   → What specifically changes
+METRIC   → How you measure if the fix worked
+```
+
+**Counterintuitive finding from this dataset:**
+Abandoned carts had a *lower* median price than completed purchases. This means price is not the primary cause of abandonment — purchase intent at the time of carting is. The fix is not discounts; it is better engagement signals on product pages (reviews, social proof, urgency).
+
+---
+
+### Phase 4 — Segmentation
+**Goal:** Break down users into groups to find who converts best and focus GTM effort.
+
+**Segments built:**
+- Price tier (Budget / Mid / Premium / Luxury)
+- Top category by conversion rate
+- Brand performance
+- Day of week and hour of day
+
+**RFM framework:**
+
+| Letter | Stands For | Definition                        |
+|--------|------------|-----------------------------------|
+| R      | Recency    | When did the user last purchase?  |
+| F      | Frequency  | How many times did they purchase? |
+| M      | Monetary   | How much did they spend?          |
+
+**The moveable middle:** Re-engagement campaigns have the highest ROI on mid-tier spenders — not your best customers (already engaged) and not your lowest (low ceiling). The mid tier has demonstrated real intent and still has upside.
+
+---
+
+### Phase 5 — Recommendations
+**Goal:** Turn findings into prioritized, data-backed business decisions.
+
+Every recommendation must answer 4 things:
+
+```
+FINDING : [specific number from your data]
+SO WHAT : [business impact in plain English]
+ACTION  : [exactly what changes]
+METRIC  : [measurable target + timeframe]
+```
+
+Prioritize by: **Impact × Confidence ÷ Effort**
+
+Never recommend fixing something your data shows is working.
+
+---
+
+## Key Concepts
+
+| Term                  | Definition                                                                 |
+|-----------------------|----------------------------------------------------------------------------|
+| **Funnel**            | Sequence of steps toward a goal (view → cart → purchase)                   |
+| **Conversion Rate**   | % of users who move from one stage to the next                             |
+| **Drop-off**          | Users who leave the funnel at a specific stage                             |
+| **Sequential Funnel** | Each stage requires completion of the previous stage                       |
+| **Segmentation**      | Splitting users into groups to find behavioral patterns                    |
+| **RFM**               | Recency / Frequency / Monetary — standard customer segmentation framework  |
+| **Moveable Middle**   | The segment with the most untapped potential — highest re-engagement ROI   |
+| **Funnel Leverage**   | Improvements at higher funnel stages compound through higher user volumes  |
+| **Cross-period Attribution** | A user's events span multiple files — single-month analysis can overcount purchasers |
+| **AOV**               | Average Order Value                                                        |
+| **CAC**               | Customer Acquisition Cost                                                  |
+| **LTV**               | Lifetime Value                                                             |
+| **ROMI**              | Return on Marketing Investment                                             |
+
+---
+
+## Common Mistakes to Avoid
+
+| Mistake | Why it's wrong | Fix |
+|--------|----------------|-----|
+| Sampling with `nrows=N` | Biases toward one time window if data is sorted chronologically | Sample by user ID |
+| Counting events instead of users | Inflates numbers — one user can have 50 view events | Use `.nunique()` on `user_id` |
+| Not enforcing sequential funnel | Purchasers can exceed carters due to cross-period data | Use set intersection (`&`) between stages |
+| Conversion rate > 100% | Mathematically impossible — stop and investigate | Fix sampling or funnel logic |
+| Recommending fixes for working stages | Wastes effort | Check benchmark before recommending |
+| Using averages without segmentation | Hides which sub-groups are actually the problem | Always break down by segment |
 
 ---
 
 ## What Good GTM Analysis Looks Like
 
-After finishing this project you should be able to answer:
-1. What % of users convert from awareness to purchase?
-2. Where is the biggest drop in the funnel?
+By the end of this project you should be able to answer:
+
+1. What is the end-to-end conversion rate for this store?
+2. At which funnel stage is the biggest drop-off?
 3. Which product category has the highest conversion rate?
-4. What price range do most purchases fall into?
-5. What concrete action would you recommend to improve conversion by 5%?
+4. Which user segment has the most untapped revenue potential?
+5. Write one complete recommendation with a number, a business reason, a specific action, and a measurable target.
 
-If you can answer all 5 with data — you have done GTM analysis.
-
----
-
-## Progress Tracker
-
-- [ ] Phase 1 — Data Exploration
-- [ ] Phase 2 — Funnel Analysis
-- [ ] Phase 3 — Drop-off Analysis
-- [ ] Phase 4 — Segmentation
-- [ ] Phase 5 — GTM Recommendations
+If you can answer all 5 from your data — you have done GTM analysis.
