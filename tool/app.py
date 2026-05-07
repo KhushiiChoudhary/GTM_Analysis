@@ -329,12 +329,22 @@ def sidebar() -> tuple:
 
         st.markdown("### Sample Size")
         max_users = df_raw[uid].nunique()
-        n_users = st.slider(
-            "Max unique users", min_value=1_000,
-            max_value=min(max_users, 100_000),
-            value=min(max_users, 50_000), step=1_000,
-            help="Larger = more accurate but slower.",
-        )
+        slider_max = min(max_users, 100_000)
+        slider_min = min(1_000, slider_max)
+        slider_val = max(min(max_users, 50_000), slider_min)
+
+        if slider_max <= slider_min:
+            n_users = slider_max
+            st.caption(f"Using all {max_users:,} users.")
+        else:
+            n_users = st.slider(
+                "Max unique users",
+                min_value=slider_min,
+                max_value=slider_max,
+                value=slider_val,
+                step=min(1_000, slider_max - slider_min),
+                help="Larger = more accurate but slower.",
+            )
 
         df = sample_by_user(df_raw, uid, n_users)
 
