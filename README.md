@@ -1,4 +1,4 @@
-# GTM Analysis — E-Commerce Behavior Case Study
+# GTM Analysis: E-Commerce Behavior Case Study
 
 End-to-end Go-To-Market analysis on real e-commerce event data.
 Covers funnel building, drop-off analysis, user segmentation, and data-backed recommendations.
