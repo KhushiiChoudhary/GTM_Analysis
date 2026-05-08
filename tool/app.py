@@ -262,7 +262,7 @@ def render_chart(key: str, engine: GTMEngine):
 
 def show_landing():
     st.title("📊 GTM Analysis Tool")
-    st.subheader("Upload any e-commerce event CSV and get instant GTM insights — no code required.")
+    st.subheader("Upload any e-commerce event CSV and get instant GTM insights  no code required.")
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -282,7 +282,7 @@ def show_landing():
 - *"What is the peak purchase hour?"*
 
 **Expected CSV columns:** `event_type`, `user_id`, `price`, `event_time`, `category_code`, `brand`
-(Column names can differ — you'll map them after upload.)
+(Column names can differ  you'll map them after upload.)
 """)
 
 
@@ -305,7 +305,7 @@ def sidebar() -> tuple:
         st.success(f"Loaded {len(df_raw):,} rows · {df_raw.shape[1]} columns")
 
         st.markdown("### Column Mapping")
-        st.caption("Auto-detected — override if wrong.")
+        st.caption("Auto-detected  override if wrong.")
 
         detected = auto_detect(df_raw)
         cols = ["(none)"] + list(df_raw.columns)
@@ -388,7 +388,7 @@ def tab_funnel(engine: GTMEngine):
 |---|---|---|---|
 | View → Cart | {v2c:.1f}% | 5–15% | {"⚠️ Below" if v2c < 5 else "✅ Above" if v2c > 15 else "→ Normal"} |
 | Cart → Purchase | {c2p:.1f}% | 20–40% | {"⚠️ Below" if c2p < 20 else "✅ Above" if c2p > 40 else "→ Normal"} |
-| End-to-end | {e2e:.1f}% | — | — |
+| End-to-end | {e2e:.1f}% |  |  |
 """)
         st.markdown("#### Funnel Leverage")
         imp_v2c = int(f["views"] * 0.01 * f["cart_to_purchase"])
@@ -397,7 +397,7 @@ def tab_funnel(engine: GTMEngine):
 Every **+1pp on View→Cart** → ~**{imp_v2c:,} more purchases**
 Every **+1pp on Cart→Purchase** → ~**{imp_c2p:,} more purchases**
 
-{"🔴 **Fix the top of funnel first** — it has more leverage." if imp_v2c > imp_c2p else "🔴 **Fix checkout first** — it has more leverage."}
+{"🔴 **Fix the top of funnel first**  it has more leverage." if imp_v2c > imp_c2p else "🔴 **Fix checkout first**  it has more leverage."}
 """)
 
 
@@ -427,7 +427,7 @@ def tab_dropoff(engine: GTMEngine):
                 st.markdown("**Action:** Show installment options or free shipping threshold at checkout.")
             elif abn < pur * 0.9:
                 st.info("Abandoned carts are priced lower. Price is NOT the main issue.")
-                st.markdown("**Action:** Focus on purchase intent signals — reviews, urgency cues on product pages.")
+                st.markdown("**Action:** Focus on purchase intent signals  reviews, urgency cues on product pages.")
             else:
                 st.info("Minimal price difference. Abandonment is likely UX friction.")
                 st.markdown("**Action:** Audit checkout flow for unnecessary steps or trust issues.")
@@ -477,7 +477,7 @@ def tab_segmentation(engine: GTMEngine):
 | Segment | GTM Strategy |
 |---|---|
 | 🟢 High Spender | Loyalty program, early access, VIP support |
-| 🟡 Mid Spender | Upsell campaigns, bundles — **highest re-engagement ROI** |
+| 🟡 Mid Spender | Upsell campaigns, bundles  **highest re-engagement ROI** |
 | 🔵 Low Spender | First-time buyer follow-up, category intro emails |
 """)
 
@@ -492,7 +492,7 @@ def tab_recommendations(engine: GTMEngine):
     impact_color = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
 
     for i, rec in enumerate(recs, 1):
-        with st.expander(f"{impact_color.get(rec['impact'],'•')} **{i}. {rec['title']}** — Impact: {rec['impact']} | Effort: {rec['effort']}", expanded=(i == 1)):
+        with st.expander(f"{impact_color.get(rec['impact'],'•')} **{i}. {rec['title']}**  Impact: {rec['impact']} | Effort: {rec['effort']}", expanded=(i == 1)):
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown(f"**Finding:** {rec['finding']}")
@@ -562,7 +562,7 @@ def main():
 
     engine = GTMEngine(df, col_map)
 
-    st.title(f"📊 GTM Analysis — {filename}")
+    st.title(f"📊 GTM Analysis  {filename}")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📈 Funnel Overview",

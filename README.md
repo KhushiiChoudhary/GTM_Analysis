@@ -7,7 +7,7 @@ Covers funnel building, drop-off analysis, user segmentation, and data-backed re
 
 ## What is GTM Analysis?
 
-GTM (Go-To-Market) analysis is the process of understanding how users move through your product — where they drop off and what drives them to convert.
+GTM (Go-To-Market) analysis is the process of understanding how users move through your product  where they drop off and what drives them to convert.
 
 The core funnel for e-commerce:
 
@@ -21,10 +21,10 @@ Each arrow is a conversion rate. GTM analysis finds where those rates are low an
 
 ## Dataset
 
-**Source:** [E-Commerce Behavior Data — Kaggle](https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store)
+**Source:** [E-Commerce Behavior Data  Kaggle](https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store)
 
 - Download `2019-Oct.csv` and place it in `data/`
-- ~42M rows, ~9GB — do not commit to git
+- ~42M rows, ~9GB  do not commit to git
 
 | Column          | Meaning                                         |
 |-----------------|-------------------------------------------------|
@@ -43,7 +43,7 @@ Each arrow is a conversion rate. GTM analysis finds where those rates are low an
 
 ```
 GTM_Analysis/
-├── data/                     ← CSV files (gitignored — download from Kaggle)
+├── data/                     ← CSV files (gitignored  download from Kaggle)
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
 │   ├── 02_funnel_analysis.ipynb
@@ -70,10 +70,10 @@ Open `notebooks/01_data_exploration.ipynb` and follow the phases in order.
 
 ## The 5 Phases
 
-### Phase 1 — Data Exploration
+### Phase 1  Data Exploration
 **Goal:** Understand the data before touching the analysis.
 
-- Load a user-level sample (not `nrows` — that biases toward one time window)
+- Load a user-level sample (not `nrows`  that biases toward one time window)
 - Check shape, dtypes, nulls
 - Understand event distribution and price range
 
@@ -87,12 +87,12 @@ df = df_full[df_full["user_id"].isin(sampled_users)].copy()
 
 ---
 
-### Phase 2 — Funnel Analysis
+### Phase 2  Funnel Analysis
 **Goal:** Count unique users at each stage. Calculate stage-to-stage conversion rates.
 
 **Rules:**
-- Count unique users, not events — one user can view 50 products but is still 1 person in the funnel
-- Use a sequential funnel — a user only counts at stage N if they completed stage N-1
+- Count unique users, not events  one user can view 50 products but is still 1 person in the funnel
+- Use a sequential funnel  a user only counts at stage N if they completed stage N-1
 - Any conversion rate above 100% means broken sampling or cross-period attribution
 
 ```python
@@ -108,18 +108,18 @@ purchase_users = set(df[df["event_type"] == "purchase"]["user_id"]) & cart_users
 | View → Cart      | 5% – 15%     |
 | Cart → Purchase  | 20% – 40%    |
 
-**Funnel leverage rule:** A 1% improvement at the top of the funnel beats a 5% improvement at the bottom — because the top has 10x more users. Fix the stage with the most volume first.
+**Funnel leverage rule:** A 1% improvement at the top of the funnel beats a 5% improvement at the bottom  because the top has 10x more users. Fix the stage with the most volume first.
 
 ---
 
-### Phase 3 — Drop-off Analysis
+### Phase 3  Drop-off Analysis
 **Goal:** Find who is dropping off, at what stage, and form a testable hypothesis for why.
 
 - Compare prices of abandoned carts vs completed purchases
 - Break conversion down by category
 - Check conversion rate by hour of day
 
-**Framework — always use this structure:**
+**Framework  always use this structure:**
 
 ```
 FINDING  → What the data shows (be specific with numbers)
@@ -129,11 +129,11 @@ METRIC   → How you measure if the fix worked
 ```
 
 **Counterintuitive finding from this dataset:**
-Abandoned carts had a *lower* median price than completed purchases. This means price is not the primary cause of abandonment — purchase intent at the time of carting is. The fix is not discounts; it is better engagement signals on product pages (reviews, social proof, urgency).
+Abandoned carts had a *lower* median price than completed purchases. This means price is not the primary cause of abandonment  purchase intent at the time of carting is. The fix is not discounts; it is better engagement signals on product pages (reviews, social proof, urgency).
 
 ---
 
-### Phase 4 — Segmentation
+### Phase 4  Segmentation
 **Goal:** Break down users into groups to find who converts best and focus GTM effort.
 
 **Segments built:**
@@ -150,11 +150,11 @@ Abandoned carts had a *lower* median price than completed purchases. This means 
 | F      | Frequency  | How many times did they purchase? |
 | M      | Monetary   | How much did they spend?          |
 
-**The moveable middle:** Re-engagement campaigns have the highest ROI on mid-tier spenders — not your best customers (already engaged) and not your lowest (low ceiling). The mid tier has demonstrated real intent and still has upside.
+**The moveable middle:** Re-engagement campaigns have the highest ROI on mid-tier spenders  not your best customers (already engaged) and not your lowest (low ceiling). The mid tier has demonstrated real intent and still has upside.
 
 ---
 
-### Phase 5 — Recommendations
+### Phase 5  Recommendations
 **Goal:** Turn findings into prioritized, data-backed business decisions.
 
 Every recommendation must answer 4 things:
@@ -181,10 +181,10 @@ Never recommend fixing something your data shows is working.
 | **Drop-off**          | Users who leave the funnel at a specific stage                             |
 | **Sequential Funnel** | Each stage requires completion of the previous stage                       |
 | **Segmentation**      | Splitting users into groups to find behavioral patterns                    |
-| **RFM**               | Recency / Frequency / Monetary — standard customer segmentation framework  |
-| **Moveable Middle**   | The segment with the most untapped potential — highest re-engagement ROI   |
+| **RFM**               | Recency / Frequency / Monetary  standard customer segmentation framework  |
+| **Moveable Middle**   | The segment with the most untapped potential  highest re-engagement ROI   |
 | **Funnel Leverage**   | Improvements at higher funnel stages compound through higher user volumes  |
-| **Cross-period Attribution** | A user's events span multiple files — single-month analysis can overcount purchasers |
+| **Cross-period Attribution** | A user's events span multiple files  single-month analysis can overcount purchasers |
 | **AOV**               | Average Order Value                                                        |
 | **CAC**               | Customer Acquisition Cost                                                  |
 | **LTV**               | Lifetime Value                                                             |
@@ -197,9 +197,9 @@ Never recommend fixing something your data shows is working.
 | Mistake | Why it's wrong | Fix |
 |--------|----------------|-----|
 | Sampling with `nrows=N` | Biases toward one time window if data is sorted chronologically | Sample by user ID |
-| Counting events instead of users | Inflates numbers — one user can have 50 view events | Use `.nunique()` on `user_id` |
+| Counting events instead of users | Inflates numbers  one user can have 50 view events | Use `.nunique()` on `user_id` |
 | Not enforcing sequential funnel | Purchasers can exceed carters due to cross-period data | Use set intersection (`&`) between stages |
-| Conversion rate > 100% | Mathematically impossible — stop and investigate | Fix sampling or funnel logic |
+| Conversion rate > 100% | Mathematically impossible  stop and investigate | Fix sampling or funnel logic |
 | Recommending fixes for working stages | Wastes effort | Check benchmark before recommending |
 | Using averages without segmentation | Hides which sub-groups are actually the problem | Always break down by segment |
 
@@ -215,4 +215,4 @@ By the end of this project you should be able to answer:
 4. Which user segment has the most untapped revenue potential?
 5. Write one complete recommendation with a number, a business reason, a specific action, and a measurable target.
 
-If you can answer all 5 from your data — you have done GTM analysis.
+If you can answer all 5 from your data  you have done GTM analysis.

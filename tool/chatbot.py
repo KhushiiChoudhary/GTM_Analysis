@@ -74,7 +74,7 @@ class GTMChatbot:
             f"|---|---|---|---|\n"
             f"| View → Cart | {v2c:.1f}% | 5–15% | {v2c_status} |\n"
             f"| Cart → Purchase | {c2p:.1f}% | 20–40% | {c2p_status} |\n"
-            f"| View → Purchase | {e2e:.1f}% | — | end-to-end |\n\n"
+            f"| View → Purchase | {e2e:.1f}% |  | end-to-end |\n\n"
         )
 
         if v2c < c2p:
@@ -108,7 +108,7 @@ class GTMChatbot:
             elif abn < pur * 0.9:
                 text += (
                     "💡 Abandoned carts are priced **lower** than completed purchases. "
-                    "Price is NOT the main issue — low purchase intent at the time of carting is. "
+                    "Price is NOT the main issue  low purchase intent at the time of carting is. "
                     "Fix product pages to attract more intentional buyers, not discounts."
                 )
             else:
@@ -148,7 +148,7 @@ class GTMChatbot:
         best_rate = cat_data.iloc[0]["conversion_rate"]
         text += (
             f"\n💡 Focus paid acquisition on **{best}** ({best_rate:.1f}% conversion). "
-            f"It converts {best_rate / avg:.1f}× the average — every ad dollar goes further here."
+            f"It converts {best_rate / avg:.1f}× the average  every ad dollar goes further here."
         )
 
         return {"text": text, "chart": "category"}
@@ -180,7 +180,7 @@ class GTMChatbot:
         recs = self.engine.generate_recommendations()
         if not recs:
             return {
-                "text": "No issues detected — your funnel metrics are within or above benchmarks. "
+                "text": "No issues detected  your funnel metrics are within or above benchmarks. "
                         "Focus on driving more top-of-funnel traffic.",
                 "chart": None,
             }
@@ -224,7 +224,7 @@ class GTMChatbot:
             f"| Max | ${pur.max():.2f} |\n"
             f"| 25th pct | ${pur.quantile(0.25):.2f} |\n"
             f"| 75th pct | ${pur.quantile(0.75):.2f} |\n\n"
-            f"💡 Median purchase is **${median:.0f}** — this is a **{store_type}** store. "
+            f"💡 Median purchase is **${median:.0f}**  this is a **{store_type}** store. "
             f"Cart abandonment emails should emphasize {'convenience' if median < 50 else 'value and trust' if median < 200 else 'exclusivity and quality'}."
         )
 
@@ -280,7 +280,7 @@ class GTMChatbot:
             text += f"| {brand} | **{row['conversion_rate']:.1f}%** | {int(row['views']):,} |\n"
 
         best = brand_data.index[0]
-        text += f"\n💡 Feature **{best}** prominently in ads and homepage — it has the highest purchase intent among browsers."
+        text += f"\n💡 Feature **{best}** prominently in ads and homepage  it has the highest purchase intent among browsers."
 
         return {"text": text, "chart": "brand"}
 
@@ -311,13 +311,13 @@ class GTMChatbot:
 
         issues = []
         if v2c < 5:
-            issues.append(f"View→Cart is {v2c:.1f}% — well below benchmark. Product pages need work.")
+            issues.append(f"View→Cart is {v2c:.1f}%  well below benchmark. Product pages need work.")
         elif v2c < 15:
-            issues.append(f"View→Cart is {v2c:.1f}% — within range but has room to grow.")
+            issues.append(f"View→Cart is {v2c:.1f}%  within range but has room to grow.")
         if c2p < 20:
-            issues.append(f"Cart→Purchase is {c2p:.1f}% — below benchmark. Checkout friction likely.")
+            issues.append(f"Cart→Purchase is {c2p:.1f}%  below benchmark. Checkout friction likely.")
         if f["cart_abandoned"] > f["purchases"]:
-            issues.append(f"{f['cart_abandoned']:,} cart abandoners — email campaign opportunity.")
+            issues.append(f"{f['cart_abandoned']:,} cart abandoners  email campaign opportunity.")
 
         text = (
             f"**Store Overview**\n\n"
